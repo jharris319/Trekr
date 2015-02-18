@@ -4,5 +4,7 @@
     <string name="app_name">Trekr</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_maps">Trekr</string>
+    <string name="title_activity_emergency">EmergencyActivity</string>
 
 </resources>
