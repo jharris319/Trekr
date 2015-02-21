@@ -115,14 +115,19 @@ public class EmergencyActivity extends ActionBarActivity implements
         // moves to a new location, and then changes the device orientation, the original location
         // is displayed as the activity is re-created.
 
-        Toast.makeText(this, "Connected",
-                Toast.LENGTH_SHORT).show();
-
         startLocationUpdates();
         if (mCurrentLocation == null) {
             mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-            updateUI();
+            // Check for successful location update
+            if (mCurrentLocation != null) {
+                // All clear, update UI elements
+                updateUI();
+            }
+            else {
+                // Unable to get last location, bail out
+                Toast.makeText(this, "Unable to update location", Toast.LENGTH_SHORT).show();
+            }
         }
         else updateUI();
     }
