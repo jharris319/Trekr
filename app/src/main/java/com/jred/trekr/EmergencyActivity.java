@@ -197,7 +197,7 @@ public class EmergencyActivity extends ActionBarActivity implements
     }
 
     public void readText(String readableText) {
-        ttsObject.speak(readableText, TextToSpeech.QUEUE_FLUSH, null);
+        ttsObject.speak(readableText, TextToSpeech.QUEUE_FLUSH, null, "readText");
     }
 
     @Override
