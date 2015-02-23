@@ -2,6 +2,7 @@ package com.jred.trekr;
 
 import android.location.Location;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.TextView;
@@ -46,6 +47,8 @@ public class EmergencyActivity extends ActionBarActivity implements
     protected TextView mLatitudeTextView;
     protected TextView mLongitudeTextView;
 
+    protected TextToSpeech ttsObject;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +64,10 @@ public class EmergencyActivity extends ActionBarActivity implements
         // Kick off the process of building a GoogleApiClient and requesting the LocationServices
         // API.
         buildGoogleApiClient();
+
+        //Setup TextToSpeech object
+        ttsObject = new TextToSpeech(getApplicationContext(), null);
+        ttsObject.setSpeechRate(0.75f);
     }
 
     /**
@@ -163,11 +170,13 @@ public class EmergencyActivity extends ActionBarActivity implements
     }
 
     protected void sendSMSMessage() {
+        // Grab the phone number textview
         TextView tV = (TextView)findViewById(R.id.phone_no);
         String phoneNo = tV.getText().toString();
         String message = "Send help! I'm located at:"+ "\nLatitude: " + String.valueOf(mCurrentLocation.getLatitude())
                 + "\nLongitude: " + String.valueOf(mCurrentLocation.getLongitude()) + "\nas of " + mLastUpdateTime;
         try {
+            // Try sending the message to the selected contact
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phoneNo, null, message, null, null);
             Toast.makeText(getApplicationContext(), "SMS sent to: " + phoneNo,
@@ -178,6 +187,17 @@ public class EmergencyActivity extends ActionBarActivity implements
                     Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
+    }
+
+    public void readTextHandler(View view) {
+        String readString = mLatitudeTextView.getText().toString()
+                + mLongitudeTextView.getText().toString()
+                + mLastUpdateTimeTextView.getText().toString();
+        readText(readString);
+    }
+
+    public void readText(String readableText) {
+        ttsObject.speak(readableText, TextToSpeech.QUEUE_FLUSH, null);
     }
 
     @Override

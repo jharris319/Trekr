@@ -14,7 +14,9 @@
         android:id="@+id/latitude_text"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="67dp" />
+        android:layout_marginTop="67dp"
+        android:clickable="true"
+        android:onClick="readTextHandler" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -23,7 +25,9 @@
         android:text="Lon"
         android:id="@+id/longitude_text"
         android:layout_below="@+id/latitude_text"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:onClick="readTextHandler"
+        android:clickable="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -32,7 +36,9 @@
         android:text="Time"
         android:id="@+id/last_update_time_text"
         android:layout_below="@+id/longitude_text"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:onClick="readTextHandler"
+        android:clickable="true" />
 
     <EditText
         android:layout_width="wrap_content"
