@@ -1,6 +1,7 @@
 package com.jred.trekr;
 
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.ActionBarActivity;
@@ -197,7 +198,13 @@ public class EmergencyActivity extends ActionBarActivity implements
     }
 
     public void readText(String readableText) {
-        ttsObject.speak(readableText, TextToSpeech.QUEUE_FLUSH, null, "readText");
+        if (Build.VERSION.SDK_INT >= 21) {
+            ttsObject.speak(readableText, TextToSpeech.QUEUE_FLUSH, null, "readText");
+        }
+        else {
+            ttsObject.speak(readableText, TextToSpeech.QUEUE_FLUSH, null);
+        }
+
     }
 
     @Override
