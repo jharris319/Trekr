@@ -7,5 +7,6 @@
     <string name="title_activity_maps">Trekr</string>
     <string name="title_activity_emergency">EmergencyActivity</string>
     <string name="startEmergencyActivity">startEmergencyActivity</string>
-
+    <string name="action_search">Search</string>
+    <string name ="action_newContact">Add Emergency Contact</string>
 </resources>

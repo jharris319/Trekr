@@ -5,6 +5,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,6 +54,37 @@ public class EmergencyActivity extends ActionBarActivity implements
 
     protected TextToSpeech ttsObject;
 
+    //RT
+    //Displays the Search button on the emergency activity
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_emergency, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+    //RT
+    // call getItemId() on the given MenuItem to determine which item was pressed—
+    // the returned ID matches the value you declared in the corresponding <item> element's android:id attribute.
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.action_search:
+                //openSearch(); //function to search for something, can be taken out, just wanted something to look at
+                return true;
+            case R.id.action_settings:
+                //openSettings(); //function to adjust the app's settings
+                return true;
+            case R.id.action_newContact:
+                // addEmergencyContact(); // retrieve the persons contacts in a listView and let them select one contact.
+                                          // this method should return the users selected contact so that we can send the
+                                          // text message to them
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
