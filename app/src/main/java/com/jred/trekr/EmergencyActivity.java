@@ -17,6 +17,7 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 
@@ -174,8 +175,12 @@ public class EmergencyActivity extends ActionBarActivity implements
         // Grab the phone number textview
         TextView tV = (TextView)findViewById(R.id.phone_no);
         String phoneNo = tV.getText().toString();
+        String googleMapsLink = "\n\ngoogle.com/maps/place/"
+                + String.valueOf(mCurrentLocation.getLatitude()) + ","
+                + String.valueOf(mCurrentLocation.getLongitude());
         String message = "Send help! I'm located at:"+ "\nLatitude: " + String.valueOf(mCurrentLocation.getLatitude())
-                + "\nLongitude: " + String.valueOf(mCurrentLocation.getLongitude()) + "\nas of " + mLastUpdateTime;
+                + "\nLongitude: " + String.valueOf(mCurrentLocation.getLongitude()) + "\nas of " + mLastUpdateTime
+                + googleMapsLink;
         try {
             // Try sending the message to the selected contact
             SmsManager smsManager = SmsManager.getDefault();

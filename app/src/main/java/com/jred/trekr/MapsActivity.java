@@ -3,13 +3,15 @@ package com.jred.trekr;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
+import android.view.View;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity {
+public class MapsActivity extends ActionBarActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
@@ -18,14 +20,19 @@ public class MapsActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
-        Intent intent = new Intent(this, EmergencyActivity.class);
-        startActivity(intent);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+    }
+
+    public void emergencyButtonHandler(View view) {startEmergencyActivity();}
+
+    private void startEmergencyActivity() {
+        Intent intent = new Intent(this, EmergencyActivity.class);
+        startActivity(intent);
     }
 
     /**
