@@ -20,7 +20,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 
@@ -81,6 +80,9 @@ public class EmergencyActivity extends ActionBarActivity implements
                                           // this method should return the users selected contact so that we can send the
                                           // text message to them
                 return true;
+            case android.R.id.home: // Handles back button
+                onBackPressed();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -90,6 +92,9 @@ public class EmergencyActivity extends ActionBarActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_emergency);
+
+        // Enable back button
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Locate UI widgets here
         mLatitudeTextView = (TextView) findViewById(R.id.latitude_text);
