@@ -2,6 +2,7 @@ package com.jred.trekr;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.location.Location;
 import android.os.Bundle;
 
 import android.view.Menu;
@@ -12,9 +13,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.support.v4.widget.DrawerLayout;
@@ -24,6 +27,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 public class MapsActivity extends ActionBarActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private LatLng loc;
 
     // Variables for nav drawer
     private ListView mDrawerList;
@@ -36,6 +40,8 @@ public class MapsActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+
         setUpMapIfNeeded();
 
         // Setup Nav Drawer
@@ -47,6 +53,13 @@ public class MapsActivity extends ActionBarActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
     }
+
+    private GoogleMap.OnMyLocationChangeListener myLocationChangeListener = new GoogleMap.OnMyLocationChangeListener() {
+        @Override
+        public void onMyLocationChange(Location location) {
+            loc = new LatLng(location.getLatitude(), location.getLongitude());
+        }
+    };
 
     @Override
     protected void onResume() {
@@ -69,9 +82,11 @@ public class MapsActivity extends ActionBarActivity {
                 switch (position) {
                     case 0:
                         startEmergencyActivity();
+                        mDrawerLayout.closeDrawers();
                         break;
                     default:
                         Toast.makeText(MapsActivity.this, Integer.toString(position), Toast.LENGTH_SHORT).show();
+                        mDrawerLayout.closeDrawers();
                         break;
                 }
 
@@ -184,6 +199,9 @@ public class MapsActivity extends ActionBarActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        mMap.setMyLocationEnabled(true);
+        mMap.setOnMyLocationChangeListener(myLocationChangeListener);
+        LatLng montevallo = new LatLng(33.1049, -86.8628);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(montevallo, 6.75f));
     }
 }
