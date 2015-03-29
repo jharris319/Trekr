@@ -35,7 +35,8 @@
         </activity>
         <activity
             android:name=".EmergencyActivity"
-            android:label="@string/title_activity_emergency" >
+            android:label="@string/title_activity_emergency"
+            android:parentActivityName= ".MapsActivity">
         </activity>
     </application>
 

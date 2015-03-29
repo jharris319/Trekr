@@ -91,6 +91,9 @@ public class EmergencyActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_emergency);
 
+        //Up Navigation, Sends the user back to the mapsActivity
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         // Locate UI widgets here
         mLatitudeTextView = (TextView) findViewById(R.id.latitude_text);
         mLongitudeTextView = (TextView) findViewById(R.id.longitude_text);
