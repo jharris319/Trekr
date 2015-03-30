@@ -10,8 +10,8 @@
         android:title="@string/action_search"
         app:showAsAction="ifRoom" />
 
-    <item android:id="@+id/action_newContact"
-        android:title="@string/action_newContact"
+    <item android:id="@+id/action_deleteContact"
+        android:title="Delete Contact"
         app:showAsAction="never" />
 
 </menu>

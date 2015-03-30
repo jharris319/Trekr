@@ -1,29 +1,33 @@
-package com.jred.trekr;
+        package com.jred.trekr;
 
-import android.location.Location;
-import android.os.Build;
-import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
-import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
+        import android.app.AlertDialog;
+        import android.content.DialogInterface;
+        import android.content.SharedPreferences;
+        import android.location.Location;
+        import android.os.Build;
+        import android.os.Bundle;
+        import android.speech.tts.TextToSpeech;
+        import android.support.v7.app.ActionBarActivity;
+        import android.view.Menu;
+        import android.view.MenuInflater;
+        import android.view.MenuItem;
+        import android.view.View;
+        import android.widget.EditText;
+        import android.widget.TextView;
+        import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
+        import com.google.android.gms.common.ConnectionResult;
+        import com.google.android.gms.common.api.GoogleApiClient;
+        import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+        import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+        import com.google.android.gms.location.LocationListener;
+        import com.google.android.gms.location.LocationRequest;
+        import com.google.android.gms.location.LocationServices;
 
-import java.text.DateFormat;
-import java.util.Date;
+        import java.text.DateFormat;
+        import java.util.Date;
 
-import android.telephony.SmsManager;
+        import android.telephony.SmsManager;
 
 
 public class EmergencyActivity extends ActionBarActivity implements
@@ -51,6 +55,13 @@ public class EmergencyActivity extends ActionBarActivity implements
     protected TextView mLatitudeTextView;
     protected TextView mLongitudeTextView;
 
+    //For the dialog and storing the phone number
+    protected EditText mInput;
+    protected String mPhoneNumber1;
+    private static final String PREFS = "prefs";
+    private static final String PREF_NAME1 = "name";
+    SharedPreferences mSharedPreferences; // 7
+
     protected TextToSpeech ttsObject;
 
     //RT
@@ -75,16 +86,96 @@ public class EmergencyActivity extends ActionBarActivity implements
             case R.id.action_settings:
                 //openSettings(); //function to adjust the app's settings
                 return true;
-            case R.id.action_newContact:
-                // addEmergencyContact(); // retrieve the persons contacts in a listView and let them select one contact.
-                                          // this method should return the users selected contact so that we can send the
-                                          // text message to them
+            case R.id.action_deleteContact:
+                deleteContact(); // Basically deletes the current stored contact
+                displayDialog();// and forces the user to enter a new emergency contact.
+                                 // Sends the user back to the dialog.
                 return true;
             case android.R.id.home: // Handles back button
                 onBackPressed();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    protected void deleteContact(){
+        SharedPreferences.Editor e =
+                mSharedPreferences.edit();
+        e.putString(PREF_NAME1, "");
+        e.commit();
+        Toast.makeText(getApplicationContext(),
+                "Contact Deleted",
+                Toast.LENGTH_LONG)
+                .show();
+    }
+
+    protected void displayDialog() {
+
+        // Access the device's key-value storage
+        mSharedPreferences
+                = getSharedPreferences(PREFS, MODE_PRIVATE);
+
+        // Read the user's name,
+        // or an empty string if nothing found
+        mPhoneNumber1 = mSharedPreferences.getString(PREF_NAME1, "");
+        if (mPhoneNumber1.length() > 0) {
+            // If a number is stored, display a Toast displaying the contacts number
+            Toast.makeText(this,
+                    "Contact Added:, " + mPhoneNumber1 + "!",
+                    Toast.LENGTH_LONG)
+                    .show();
+
+        } else {
+
+            // otherwise, show a dialog to ask for a emergency contact
+            AlertDialog.Builder alert
+                    = new AlertDialog.Builder(this);
+            alert.setTitle(R.string.dialog_message);
+            alert.setMessage(R.string.dialog_title);
+
+            // Create EditText for entry
+            mInput = new EditText(this);
+            alert.setView(mInput);
+
+            // Make an "OK" button to save the contact
+            alert.setPositiveButton(R.string.ok,
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,
+                                            int whichButton) {
+
+                           // Grab the EditText's input
+                           // TextView tV = (TextView)findViewById(R.id.phone_no);
+                           // String phoneNo = tV.getText().toString();
+                           // String inputName = phoneNo.getText().toString();
+                            String inputName = mInput.getText().toString();
+                            mPhoneNumber1 = inputName;
+
+                            // Put it into memory (don't forget to commit!)
+                            SharedPreferences.Editor e =
+                                    mSharedPreferences.edit();
+                            e.putString(PREF_NAME1, inputName);
+                            e.commit();
+
+                            // Display the contact added in a toast
+                            Toast.makeText(getApplicationContext(),
+                                    "Contact Added: " + inputName + "!",
+                                    Toast.LENGTH_LONG)
+                                    .show();
+                        }
+                    });
+
+            // Make a "Cancel" button
+            // that leaves the dialog
+            alert.setNegativeButton(R.string.cancel,
+                    new DialogInterface.OnClickListener() {
+
+                        public void onClick(DialogInterface dialog,
+                                            int whichButton) {
+                        }
+                    });
+
+            alert.show();
         }
     }
 
@@ -109,6 +200,9 @@ public class EmergencyActivity extends ActionBarActivity implements
         //Setup TextToSpeech object
         ttsObject = new TextToSpeech(getApplicationContext(), null);
         ttsObject.setSpeechRate(0.75f);
+
+        // display the dialog so the user can enter an emergency contact
+        displayDialog();
     }
 
     /**
@@ -212,8 +306,11 @@ public class EmergencyActivity extends ActionBarActivity implements
 
     protected void sendSMSMessage() {
         // Grab the phone number textview
-        TextView tV = (TextView)findViewById(R.id.phone_no);
-        String phoneNo = tV.getText().toString();
+        // TextView tV = (TextView)findViewById(R.id.phone_no);
+        // String phoneNo = tV.getText().toString();
+        // String phoneNo = mInput.getText().toString();
+        String phoneNo = mPhoneNumber1;
+
         String googleMapsLink = "\n\ngoogle.com/maps/place/"
                 + String.valueOf(mCurrentLocation.getLatitude()) + ","
                 + String.valueOf(mCurrentLocation.getLongitude());

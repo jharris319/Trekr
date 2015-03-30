@@ -42,11 +42,11 @@
         android:clickable="true" />
 
     <EditText
+        android:id="@+id/phone_no"
+        android:inputType="phone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="phone"
         android:ems="10"
-        android:id="@+id/phone_no"
         android:layout_below="@+id/last_update_time_text"
         android:layout_centerHorizontal="true" />
 
