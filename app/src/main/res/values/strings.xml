@@ -10,7 +10,7 @@
 
     <string name="startEmergencyActivity">startEmergencyActivity</string>
     <string name="dialog_message">Emergency Contact</string>
-    <string name="dialog_title">Enter phone number without dashses</string>
+    <string name="dialog_title">Enter phone number without dashes</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
