@@ -130,7 +130,6 @@ public class EmergencyActivity extends ActionBarActivity implements
                     phone = "";
                     try {
                         Uri result = data.getData();
-
                         // get the contact id from the Uri
                         String id = result.getLastPathSegment();
 

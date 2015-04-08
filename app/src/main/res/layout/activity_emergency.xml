@@ -58,4 +58,5 @@
         android:layout_below="@+id/phone_no"
         android:layout_centerHorizontal="true"
         android:onClick="sendSMSHandler" />
+
 </RelativeLayout>
