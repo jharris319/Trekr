@@ -9,6 +9,9 @@
         android:icon="@drawable/ic_action_search"
         android:title="@string/action_search"
         app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_addContact"
+        android:title="@string/action_addContact"
+        app:showAsAction="never" />
 
     <item android:id="@+id/action_deleteContact"
         android:title="Delete Contact"

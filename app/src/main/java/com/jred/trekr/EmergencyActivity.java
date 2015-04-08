@@ -2,10 +2,14 @@
 
         import android.app.AlertDialog;
         import android.content.DialogInterface;
+        import android.content.Intent;
         import android.content.SharedPreferences;
+        import android.database.Cursor;
         import android.location.Location;
+        import android.net.Uri;
         import android.os.Build;
         import android.os.Bundle;
+        import android.provider.ContactsContract;
         import android.speech.tts.TextToSpeech;
         import android.support.v7.app.ActionBarActivity;
         import android.view.Menu;
@@ -55,12 +59,13 @@ public class EmergencyActivity extends ActionBarActivity implements
     protected TextView mLatitudeTextView;
     protected TextView mLongitudeTextView;
 
-    //For the dialog and storing the phone number
-    protected EditText mInput;
-    protected String mPhoneNumber1;
+    //For the intent and storing the phone number
     private static final String PREFS = "prefs";
     private static final String PREF_NAME1 = "name";
-    SharedPreferences mSharedPreferences; // 7
+    SharedPreferences mSharedPreferences;
+    private static final int CONTACT_PICKER_RESULT = 1001;
+    protected String phone = "";
+    protected String mphoneNumber = "";
 
     protected TextToSpeech ttsObject;
 
@@ -86,10 +91,18 @@ public class EmergencyActivity extends ActionBarActivity implements
             case R.id.action_settings:
                 //openSettings(); //function to adjust the app's settings
                 return true;
+            case R.id.action_addContact:
+                //I could change this to if the size of the array is greater than 3 contacts then force them to delete some
+                if(mphoneNumber.length() >0){
+                    Toast.makeText(this, "Too Many Contacts, Must Delete "
+                            ,Toast.LENGTH_LONG).show();
+                }
+                else {
+                    doLaunchContactPicker();//Launches the intent for the contacts application
+                }
+                return true;
             case R.id.action_deleteContact:
-                deleteContact(); // Basically deletes the current stored contact
-                displayDialog();// and forces the user to enter a new emergency contact.
-                                 // Sends the user back to the dialog.
+                deleteContact(); // Deletes the current stored contact
                 return true;
             case android.R.id.home: // Handles back button
                 onBackPressed();
@@ -99,84 +112,75 @@ public class EmergencyActivity extends ActionBarActivity implements
         }
     }
 
-    protected void deleteContact(){
-        SharedPreferences.Editor e =
-                mSharedPreferences.edit();
-        e.putString(PREF_NAME1, "");
-        e.commit();
-        Toast.makeText(getApplicationContext(),
-                "Contact Deleted",
-                Toast.LENGTH_LONG)
-                .show();
+    //Launches the intent for the contacts application
+    public void doLaunchContactPicker() {
+        Intent contactPickerIntent = new Intent(Intent.ACTION_PICK,
+                ContactsContract.Contacts.CONTENT_URI);
+        startActivityForResult(contactPickerIntent, CONTACT_PICKER_RESULT);
     }
 
-    protected void displayDialog() {
+    //grabs the phone number of the contact that the user pressed
+    //and stores it into mphoneNumber
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case CONTACT_PICKER_RESULT:
+                    Cursor cursor = null;
+                    phone = "";
+                    try {
+                        Uri result = data.getData();
 
-        // Access the device's key-value storage
-        mSharedPreferences
-                = getSharedPreferences(PREFS, MODE_PRIVATE);
+                        // get the contact id from the Uri
+                        String id = result.getLastPathSegment();
 
-        // Read the user's name,
-        // or an empty string if nothing found
-        mPhoneNumber1 = mSharedPreferences.getString(PREF_NAME1, "");
-        if (mPhoneNumber1.length() > 0) {
-            // If a number is stored, display a Toast displaying the contacts number
-            Toast.makeText(this,
-                    "Contact Added:, " + mPhoneNumber1 + "!",
-                    Toast.LENGTH_LONG)
-                    .show();
+                        // query for everything phone
+                        cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                                null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?", new String[]{id},
+                                null);
 
-        } else {
+                        int phoneIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DATA);
 
-            // otherwise, show a dialog to ask for a emergency contact
-            AlertDialog.Builder alert
-                    = new AlertDialog.Builder(this);
-            alert.setTitle(R.string.dialog_message);
-            alert.setMessage(R.string.dialog_title);
-
-            // Create EditText for entry
-            mInput = new EditText(this);
-            alert.setView(mInput);
-
-            // Make an "OK" button to save the contact
-            alert.setPositiveButton(R.string.ok,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog,
-                                            int whichButton) {
-
-                           // Grab the EditText's input
-                           // TextView tV = (TextView)findViewById(R.id.phone_no);
-                           // String phoneNo = tV.getText().toString();
-                           // String inputName = phoneNo.getText().toString();
-                            String inputName = mInput.getText().toString();
-                            mPhoneNumber1 = inputName;
-
+                        // let's just get the first phone
+                        if (cursor.moveToFirst()) {
+                            phone = cursor.getString(phoneIdx);
+                            mphoneNumber = phone;
                             // Put it into memory (don't forget to commit!)
                             SharedPreferences.Editor e =
                                     mSharedPreferences.edit();
-                            e.putString(PREF_NAME1, inputName);
+                            e.putString(PREF_NAME1, mphoneNumber);
                             e.commit();
 
                             // Display the contact added in a toast
                             Toast.makeText(getApplicationContext(),
-                                    "Contact Added: " + inputName + "!",
+                                    "Contact Added: " + mphoneNumber + "!",
                                     Toast.LENGTH_LONG)
                                     .show();
                         }
-                    });
+                    } catch (Exception e) {
 
-            // Make a "Cancel" button
-            // that leaves the dialog
-            alert.setNegativeButton(R.string.cancel,
-                    new DialogInterface.OnClickListener() {
-
-                        public void onClick(DialogInterface dialog,
-                                            int whichButton) {
+                    } finally {
+                        if (cursor != null) {
+                            cursor.close();
                         }
-                    });
-
-            alert.show();
+                        if (phone.length() == 0) {
+                            Toast.makeText(this, "No phone number found for contact.",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    break;
+            }
         }
+    }
+    //delete the contact
+    protected void deleteContact(){
+        mphoneNumber = "";
+        SharedPreferences.Editor e =
+                mSharedPreferences.edit();
+        e.putString(PREF_NAME1, mphoneNumber);
+        e.commit();
+        Toast.makeText(this, "Contact Deleted",
+                Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -201,8 +205,13 @@ public class EmergencyActivity extends ActionBarActivity implements
         ttsObject = new TextToSpeech(getApplicationContext(), null);
         ttsObject.setSpeechRate(0.75f);
 
-        // display the dialog so the user can enter an emergency contact
-        displayDialog();
+
+        // Access the device's key-value storage
+        mSharedPreferences = getSharedPreferences(PREFS, MODE_PRIVATE);
+
+        // Read the user's name,
+        // or an empty string if nothing found
+        mphoneNumber = mSharedPreferences.getString(PREF_NAME1, "");
     }
 
     /**
@@ -308,8 +317,7 @@ public class EmergencyActivity extends ActionBarActivity implements
         // Grab the phone number textview
         // TextView tV = (TextView)findViewById(R.id.phone_no);
         // String phoneNo = tV.getText().toString();
-        // String phoneNo = mInput.getText().toString();
-        String phoneNo = mPhoneNumber1;
+        String phoneNo = mphoneNumber;
 
         String googleMapsLink = "\n\ngoogle.com/maps/place/"
                 + String.valueOf(mCurrentLocation.getLatitude()) + ","
