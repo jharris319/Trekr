@@ -66,6 +66,7 @@ public class EmergencyActivity extends ActionBarActivity implements
     private static final int CONTACT_PICKER_RESULT = 1001;
     protected String phone = "";
     protected String mphoneNumber = "";
+    protected String contactName = "";
 
     protected TextToSpeech ttsObject;
 
@@ -139,10 +140,12 @@ public class EmergencyActivity extends ActionBarActivity implements
                                 null);
 
                         int phoneIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DATA);
+                        int nameIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
 
                         // let's just get the first phone
                         if (cursor.moveToFirst()) {
                             phone = cursor.getString(phoneIdx);
+                            contactName = cursor.getString(nameIdx);
                             mphoneNumber = phone;
                             // Put it into memory (don't forget to commit!)
                             SharedPreferences.Editor e =
@@ -152,7 +155,7 @@ public class EmergencyActivity extends ActionBarActivity implements
 
                             // Display the contact added in a toast
                             Toast.makeText(getApplicationContext(),
-                                    "Contact Added: " + mphoneNumber + "!",
+                                    "Contact Added: " + contactName + "!",
                                     Toast.LENGTH_LONG)
                                     .show();
                         }
@@ -174,6 +177,7 @@ public class EmergencyActivity extends ActionBarActivity implements
     //delete the contact
     protected void deleteContact(){
         mphoneNumber = "";
+        contactName = "";
         SharedPreferences.Editor e =
                 mSharedPreferences.edit();
         e.putString(PREF_NAME1, mphoneNumber);
@@ -328,7 +332,7 @@ public class EmergencyActivity extends ActionBarActivity implements
             // Try sending the message to the selected contact
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phoneNo, null, message, null, null);
-            Toast.makeText(getApplicationContext(), "SMS sent to: " + phoneNo,
+            Toast.makeText(getApplicationContext(), "SMS sent to: " + contactName,
                     Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(),

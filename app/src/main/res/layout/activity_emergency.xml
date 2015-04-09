@@ -41,22 +41,13 @@
         android:onClick="readTextHandler"
         android:clickable="true" />
 
-    <EditText
-        android:id="@+id/phone_no"
-        android:inputType="phone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:layout_below="@+id/last_update_time_text"
-        android:layout_centerHorizontal="true" />
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Send Help"
         android:id="@+id/send_button"
-        android:layout_below="@+id/phone_no"
         android:layout_centerHorizontal="true"
-        android:onClick="sendSMSHandler" />
+        android:onClick="sendSMSHandler"
+        android:layout_below="@+id/last_update_time_text" />
 
 </RelativeLayout>
