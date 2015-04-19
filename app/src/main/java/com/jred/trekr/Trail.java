@@ -1,35 +1,40 @@
 package com.jred.trekr;
 
+
+import java.util.ArrayList;
+
 public class Trail {
 
-    private int _id;
+    private long _id;
     private String _trailName;
-    private Location[] _pathValues;
-    private POI[] _POIList;
+    private String _locationName;
+    private ArrayList<Location> _pathValues;
+    private ArrayList<POI> _POIList;
 
     public Trail()
     {
     }
 
-    public Trail(int id, String trailName, Location[] pathValues)
+    public Trail(long id, String trailName, String locationName, ArrayList<Location> pathValues)
     {
         this._id = id;
+        this._trailName = trailName;
+        this._locationName = locationName;
+        this._pathValues = pathValues;
+    }
+
+    public Trail(String trailName, ArrayList<Location> pathValues)
+    {
         this._trailName = trailName;
         this._pathValues = pathValues;
     }
 
-    public Trail(String trailName, Location[] pathValues)
-    {
-        this._trailName = trailName;
-        this._pathValues = pathValues;
-    }
-
-    public void setID(int id)
+    public void setID(long id)
     {
         this._id = id;
     }
 
-    public int getID()
+    public long getID()
     {
         return this._id;
     }
@@ -44,22 +49,32 @@ public class Trail {
         return this._trailName;
     }
 
-    public void setPathValues(Location[] pathValues)
+    public void setLocationName(String locationName)
+    {
+        this._locationName = locationName;
+    }
+
+    public String getLocationName()
+    {
+        return this._locationName;
+    }
+
+    public void setPathValues(ArrayList<Location> pathValues)
     {
         this._pathValues = pathValues;
     }
 
-    public Location[] getPathValues()
+    public ArrayList<Location> getPathValues()
     {
         return this._pathValues;
     }
 
-    public void setPOIList(POI[] POIList)
+    public void setPOIList(ArrayList<POI> POIList)
     {
         this._POIList = POIList;
     }
 
-    public POI[] getPOIList()
+    public ArrayList<POI> getPOIList()
     {
         return this._POIList;
     }
