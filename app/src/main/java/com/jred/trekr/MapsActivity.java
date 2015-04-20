@@ -73,7 +73,7 @@ public class MapsActivity extends ActionBarActivity {
     /** START: Navigation drawer functions **/
 
     private void addDrawerItems() {
-        String[] navArray = { "Emergency", "Terrain", "Hybrid", "Satellite", "Settings"};
+        String[] navArray = { "Emergency", "Record Trail", "Terrain", "Hybrid", "Satellite", "Settings"};
         mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, navArray);
         mDrawerList.setAdapter(mAdapter);
 
@@ -88,18 +88,22 @@ public class MapsActivity extends ActionBarActivity {
                         mDrawerLayout.closeDrawers();
                         break;
                     case 1:
-                        mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                        startRecordingActivity();
                         mDrawerLayout.closeDrawers();
                         break;
                     case 2:
-                        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                        mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                         mDrawerLayout.closeDrawers();
                         break;
                     case 3:
-                        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                         mDrawerLayout.closeDrawers();
                         break;
                     case 4:
+                        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                        mDrawerLayout.closeDrawers();
+                        break;
+                    case 5:
                         Toast.makeText(MapsActivity.this, "Settings Requested", Toast.LENGTH_SHORT).show();
                         mDrawerLayout.closeDrawers();
                         break;
@@ -176,6 +180,12 @@ public class MapsActivity extends ActionBarActivity {
     // Used to start EmergencyActivity from drawer OnClickListener
     private void startEmergencyActivity() {
         Intent intent = new Intent(this, EmergencyActivity.class);
+        startActivity(intent);
+    }
+
+    // Used to start RecordingActivity from drawer OnClickListener
+    private void startRecordingActivity() {
+        Intent intent = new Intent(this, RecordingActivity.class);
         startActivity(intent);
     }
 

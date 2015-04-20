@@ -1,37 +1,37 @@
-        package com.jred.trekr;
+package com.jred.trekr;
 
-        import android.app.AlertDialog;
-        import android.content.DialogInterface;
-        import android.content.Intent;
-        import android.content.SharedPreferences;
-        import android.database.Cursor;
-        import android.location.Location;
-        import android.net.Uri;
-        import android.os.Build;
-        import android.os.Bundle;
-        import android.provider.ContactsContract;
-        import android.speech.tts.TextToSpeech;
-        import android.support.v7.app.ActionBarActivity;
-        import android.view.Menu;
-        import android.view.MenuInflater;
-        import android.view.MenuItem;
-        import android.view.View;
-        import android.widget.EditText;
-        import android.widget.TextView;
-        import android.widget.Toast;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.location.Location;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.speech.tts.TextToSpeech;
+import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
-        import com.google.android.gms.common.ConnectionResult;
-        import com.google.android.gms.common.api.GoogleApiClient;
-        import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
-        import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-        import com.google.android.gms.location.LocationListener;
-        import com.google.android.gms.location.LocationRequest;
-        import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
-        import java.text.DateFormat;
-        import java.util.Date;
+import java.text.DateFormat;
+import java.util.Date;
 
-        import android.telephony.SmsManager;
+import android.telephony.SmsManager;
 
 
 public class EmergencyActivity extends ActionBarActivity implements
