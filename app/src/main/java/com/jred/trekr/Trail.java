@@ -1,6 +1,8 @@
 package com.jred.trekr;
 
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 
 public class Trail {
@@ -8,14 +10,14 @@ public class Trail {
     private long _id;
     private String _trailName;
     private String _locationName;
-    private ArrayList<Location> _pathValues;
+    private ArrayList<LatLng> _pathValues;
     private ArrayList<POI> _POIList;
 
     public Trail()
     {
     }
 
-    public Trail(long id, String trailName, String locationName, ArrayList<Location> pathValues)
+    public Trail(long id, String trailName, String locationName, ArrayList<LatLng> pathValues)
     {
         this._id = id;
         this._trailName = trailName;
@@ -23,7 +25,7 @@ public class Trail {
         this._pathValues = pathValues;
     }
 
-    public Trail(String trailName, ArrayList<Location> pathValues)
+    public Trail(String trailName, ArrayList<LatLng> pathValues)
     {
         this._trailName = trailName;
         this._pathValues = pathValues;
@@ -59,12 +61,12 @@ public class Trail {
         return this._locationName;
     }
 
-    public void setPathValues(ArrayList<Location> pathValues)
+    public void setPathValues(ArrayList<LatLng> pathValues)
     {
         this._pathValues = pathValues;
     }
 
-    public ArrayList<Location> getPathValues()
+    public ArrayList<LatLng> getPathValues()
     {
         return this._pathValues;
     }

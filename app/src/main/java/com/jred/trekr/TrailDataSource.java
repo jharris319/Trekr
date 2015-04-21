@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 
 /**
@@ -36,7 +38,7 @@ public class TrailDataSource {
         ContentValues valuesForTrailTable = new ContentValues();
         String trailName = trail.getTrailName();
         String locationName = trail.getLocationName();
-        ArrayList<Location> pathValues = trail.getPathValues();
+        ArrayList<LatLng> pathValues = trail.getPathValues();
         ArrayList<POI> POIList = trail.getPOIList();
 
         valuesForTrailTable.put(DatabaseHelper.COLUMN_TRAILNAME, trailName);
@@ -95,38 +97,36 @@ public class TrailDataSource {
 
     /* Modify PathValues Functions */
 
-    public void addPathValues(long trailID, ArrayList<Location> pathValues)
+    public void addPathValues(long trailID, ArrayList<LatLng> pathValues)
     {
         if (pathValues == null) { return; }
 
         ContentValues valuesForPathValuesTable = new ContentValues();
 
-        for (Location pathValue : pathValues) {
+        for (LatLng pathValue : pathValues) {
             valuesForPathValuesTable.put(DatabaseHelper.TRAIL_ID_FK, trailID);
-            valuesForPathValuesTable.put(DatabaseHelper.COLUMN_LATITUDE, pathValue.getLatitude());
-            valuesForPathValuesTable.put(DatabaseHelper.COLUMN_LONGITUDE, pathValue.getLongitude());
+            valuesForPathValuesTable.put(DatabaseHelper.COLUMN_LATITUDE, pathValue.latitude);
+            valuesForPathValuesTable.put(DatabaseHelper.COLUMN_LONGITUDE, pathValue.longitude);
             database.insert(DatabaseHelper.TABLE_PATHVALUES, null, valuesForPathValuesTable);
             valuesForPathValuesTable.clear();
         }
     }
 
-    public ArrayList<Location> findPathValues(long trailID)
+    public ArrayList<LatLng> findPathValues(long trailID)
     {
         String query = "Select * FROM " + DatabaseHelper.TABLE_PATHVALUES + " WHERE " +
                 DatabaseHelper.COLUMN_ID + " = \"" + trailID + "\";";
 
         Cursor cursor = database.rawQuery(query, null);
 
-        ArrayList<Location> pathValues = new ArrayList<Location>();
+        ArrayList<LatLng> pathValues = new ArrayList<LatLng>();
 
         if (cursor.moveToFirst())
         {
             while (cursor.moveToNext())
             {
-                Location LatLng = new Location();
-                LatLng.setLatitude(Double.parseDouble(cursor.getString(0)));
-                LatLng.setLongitude(Double.parseDouble(cursor.getString(1)));
-                pathValues.add(LatLng);
+                pathValues.add(new LatLng(Integer.parseInt(cursor.getString(0)),
+                        Integer.parseInt(cursor.getString(1))));
             }
             cursor.close();
         }
@@ -152,13 +152,13 @@ public class TrailDataSource {
 
     /* POIList Functions */
 
-    public void addPOI(long trailID, Location POILocation)
+    public void addPOI(long trailID, LatLng POILocation)
     {
         ContentValues valuesForPOITable = new ContentValues();
 
         valuesForPOITable.put(DatabaseHelper.TRAIL_ID_FK, trailID);
-        valuesForPOITable.put(DatabaseHelper.COLUMN_POILATITUDE, POILocation.getLatitude());
-        valuesForPOITable.put(DatabaseHelper.COLUMN_POILONGITUDE, POILocation.getLongitude());
+        valuesForPOITable.put(DatabaseHelper.COLUMN_POILATITUDE, POILocation.latitude);
+        valuesForPOITable.put(DatabaseHelper.COLUMN_POILONGITUDE, POILocation.longitude);
 
         database.insert(DatabaseHelper.TABLE_POILIST, null, valuesForPOITable);
     }

@@ -1,13 +1,19 @@
 package com.jred.trekr;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.location.Location;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Chronometer;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -21,6 +27,8 @@ import com.google.android.gms.maps.model.LatLng;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.ArrayList;
+
+import com.jred.trekr.TrailDataSource;
 
 
 public class RecordingActivity extends ActionBarActivity implements
@@ -46,10 +54,17 @@ public class RecordingActivity extends ActionBarActivity implements
     // Trail Data
     private boolean recording;
     private String trailName;
-    private ArrayList<LatLng> trail = new ArrayList<>();
+    private ArrayList<LatLng> pathValues = new ArrayList<>();
+    private Trail trail;
+    private TrailDataSource dbLink;
+    private LatLng lastLocation;
+
+    private float distance;
 
     // Placeholder for UI elements
     protected TextView mObjCount;
+    protected Chronometer mChrono;
+    protected TextView mDist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,10 +73,16 @@ public class RecordingActivity extends ActionBarActivity implements
 
         // Locate UI widgets here
         mObjCount = (TextView)findViewById(R.id.obj_count);
+        mChrono = (Chronometer)findViewById(R.id.chronometer);
+        mDist = (TextView)findViewById(R.id.tv_distance);
 
         // Kick off the process of building a GoogleApiClient and requesting the LocationServices
         // API.
         buildGoogleApiClient();
+
+        Context contextNew = this;
+        dbLink = new TrailDataSource(contextNew);
+        dbLink.open();
     }
 
 
@@ -174,7 +195,18 @@ public class RecordingActivity extends ActionBarActivity implements
         mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
         if (recording) {
             LatLng currLocation = new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude());
-            trail.add(currLocation);
+            pathValues.add(currLocation);
+            if (lastLocation == null) {
+                lastLocation = currLocation;
+                distance = 0;
+            }
+            else {
+                float[] results = new float[1];
+                Location.distanceBetween(lastLocation.latitude,lastLocation.longitude,
+                                        currLocation.latitude, currLocation.longitude, results);
+                distance += results[0];
+                lastLocation = currLocation;
+            }
         }
         updateUI();
     }
@@ -183,34 +215,70 @@ public class RecordingActivity extends ActionBarActivity implements
      * Updates the latitude, the longitude, and the last location time in the UI.
      */
     private void updateUI() {
-        mObjCount.setText("Objects: " + String.valueOf(trail.size()));
+        mObjCount.setText("Objects: " + String.valueOf(pathValues.size()));
+        mDist.setText("Distance: " + String.format("%.2f", (distance * 3.28084)));
     }
 
-        @Override
-        public void onConnectionFailed(ConnectionResult connectionResult) {
-            // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
-            // onConnectionFailed.
-        }
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
+        // onConnectionFailed.
+    }
 
-        @Override
-        protected void onStart() {
-            super.onStart();
-            mGoogleApiClient.connect();
-        }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
 
-        @Override
-        protected void onStop() {
-            super.onStop();
-            mGoogleApiClient.disconnect();
-        }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mGoogleApiClient.disconnect();
+    }
 
     /** END: Google Play Services **/
 
-    public void startRecordingHandler(View view) {
-        recording = true;
+    public void recToggleHandler(View view) {
+        // Check Toggle State
+        boolean on = ((ToggleButton) view).isChecked();
+
+        if (on) {
+            // Start Recording
+            recording = true;
+            mChrono.start();
+        } else {
+            // Stop Recording
+            recording = false;
+            mChrono.stop();
+        }
     }
 
-    public void stopRecordingHandler(View view) {
-        recording = false;
+    public void doneHandler(View view) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+        alert.setTitle("Save Trail");
+        alert.setMessage("Enter Trail Name");
+
+        // Set an EditText view to get user input
+        final EditText input = new EditText(this);
+        alert.setView(input);
+
+        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+            // Save Trail
+            trailName = input.getText().toString();
+            trail = new Trail(trailName,pathValues);
+            dbLink.addTrail(trail);
+            }
+        });
+
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+           // Canceled
+            }
+        });
+
+        alert.show();
     }
 }

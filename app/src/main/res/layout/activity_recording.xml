@@ -12,27 +12,55 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Objects:"
         android:id="@+id/obj_count"
-        android:layout_marginTop="82dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_above="@+id/recText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="92dp" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start Recording"
-        android:id="@+id/button"
-        android:onClick="startRecordingHandler"
-        android:layout_alignTop="@+id/button2"
+        android:text="Done"
+        android:id="@+id/bn_done"
+        android:onClick="doneHandler"
+        android:layout_marginTop="69dp"
+        android:layout_below="@+id/toggleButton"
+        android:layout_alignStart="@+id/obj_count" />
+
+    <ToggleButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New ToggleButton"
+        android:id="@+id/toggleButton"
+        android:onClick="recToggleHandler"
+        android:layout_marginTop="189dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/obj_count"
+        android:layout_marginStart="39dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Recording:"
+        android:id="@+id/recText"
+        android:layout_marginEnd="39dp"
+        android:layout_alignBottom="@+id/toggleButton"
+        android:layout_alignEnd="@+id/obj_count"
+        android:layout_marginBottom="11dp" />
+
+    <Chronometer
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/chronometer"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true" />
 
-    <Button
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Stop Recording"
-        android:id="@+id/button2"
-        android:onClick="stopRecordingHandler"
-        android:layout_below="@+id/obj_count"
-        android:layout_toEndOf="@+id/obj_count"
-        android:layout_marginTop="71dp" />
+        android:text="Distance: 0"
+        android:id="@+id/tv_distance"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
