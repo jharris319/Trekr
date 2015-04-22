@@ -29,5 +29,6 @@
     <string name="action_example">Example action</string>
     <string name="title_activity_recording">RecordingActivity</string>
 
-    <string name="hello_world">Hello world!</string>>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_select_trail">SelectTrail</string>>
 </resources>

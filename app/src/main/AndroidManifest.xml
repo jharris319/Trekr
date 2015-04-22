@@ -56,6 +56,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.jred.trekr.MapsActivity" />
         </activity>
+        <activity
+            android:name=".SelectTrail"
+            android:label="@string/title_activity_select_trail"
+            android:parentActivityName=".MapsActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.jred.trekr.MapsActivity" />
+        </activity>
     </application>
 
 </manifest>

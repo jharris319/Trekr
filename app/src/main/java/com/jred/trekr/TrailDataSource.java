@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -65,6 +66,33 @@ public class TrailDataSource {
             trail.setTrailName(cursor.getString(1));
             trail.setLocationName(cursor.getString(2));
             trail.setPathValues(findPathValues(trail.getID()));
+            trail.setPOIList(findPOIList(trail.getID()));
+            cursor.close();
+        }
+        else
+        {
+            trail = null;
+        }
+
+        return trail;
+    }
+
+    public Trail findTrail(long trailID)
+    {
+        String trailQuery = "Select * FROM " + DatabaseHelper.TABLE_TRAILS + " WHERE " +
+                DatabaseHelper.COLUMN_ID + " = \"" + trailID + "\";";
+
+        Cursor cursor = database.rawQuery(trailQuery, null);
+
+        Trail trail = new Trail();
+
+        if (cursor.moveToFirst())
+        {
+            trail.setID(Integer.parseInt(cursor.getString(0)));
+            trail.setTrailName(cursor.getString(1));
+            trail.setLocationName(cursor.getString(2));
+            trail.setPathValues(findPathValues(trail.getID()));
+            trail.setPOIList(findPOIList(trail.getID()));
             cursor.close();
         }
         else
@@ -123,10 +151,11 @@ public class TrailDataSource {
 
         if (cursor.moveToFirst())
         {
-            while (cursor.moveToNext())
+            while (!cursor.isAfterLast())
             {
-                pathValues.add(new LatLng(Integer.parseInt(cursor.getString(0)),
-                        Integer.parseInt(cursor.getString(1))));
+                pathValues.add(new LatLng(Double.parseDouble(cursor.getString(1)),
+                        Double.parseDouble(cursor.getString(2))));
+                cursor.moveToNext();
             }
             cursor.close();
         }
@@ -258,8 +287,9 @@ public class TrailDataSource {
         return result;
     }
 
-    /*public List<String> getAllTrails() {
-        List<String> values = new ArrayList<String>();
+    public ArrayList<String> getAllTrails() {
+        ArrayList<String> values = new ArrayList<String>();
+        String[] allColumns = {DatabaseHelper.COLUMN_ID, DatabaseHelper.COLUMN_TRAILNAME, DatabaseHelper.COLUMN_LOCATIONNAME};
 
         Cursor cursor = database.query(DatabaseHelper.TABLE_TRAILS,
                 allColumns, null, null, null, null, null);
@@ -273,13 +303,13 @@ public class TrailDataSource {
         // make sure to close the cursor
         cursor.close();
         return values;
-    }*/
+    }
 
-    /*private Trail cursorToTrail(Cursor cursor) {
+    private Trail cursorToTrail(Cursor cursor) {
         Trail trail = new Trail();
         trail.setID(cursor.getLong(0));
         trail.setTrailName(cursor.getString(1));
         return trail;
-    }*/
+    }
 
 }

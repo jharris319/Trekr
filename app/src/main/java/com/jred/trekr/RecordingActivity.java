@@ -1,7 +1,6 @@
 package com.jred.trekr;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.location.Location;
 import android.support.v7.app.ActionBarActivity;
@@ -27,8 +26,6 @@ import com.google.android.gms.maps.model.LatLng;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.ArrayList;
-
-import com.jred.trekr.TrailDataSource;
 
 
 public class RecordingActivity extends ActionBarActivity implements
@@ -65,6 +62,7 @@ public class RecordingActivity extends ActionBarActivity implements
     protected TextView mObjCount;
     protected Chronometer mChrono;
     protected TextView mDist;
+    protected EditText mLocName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,13 +73,14 @@ public class RecordingActivity extends ActionBarActivity implements
         mObjCount = (TextView)findViewById(R.id.obj_count);
         mChrono = (Chronometer)findViewById(R.id.chronometer);
         mDist = (TextView)findViewById(R.id.tv_distance);
+        mLocName = (EditText)findViewById(R.id.location_name_tf);
 
         // Kick off the process of building a GoogleApiClient and requesting the LocationServices
         // API.
         buildGoogleApiClient();
 
-        Context contextNew = this;
-        dbLink = new TrailDataSource(contextNew);
+        // Database objects
+        dbLink = new TrailDataSource(this);
         dbLink.open();
     }
 
@@ -235,6 +234,7 @@ public class RecordingActivity extends ActionBarActivity implements
     protected void onStop() {
         super.onStop();
         mGoogleApiClient.disconnect();
+        dbLink.close();
     }
 
     /** END: Google Play Services **/
@@ -269,6 +269,7 @@ public class RecordingActivity extends ActionBarActivity implements
             // Save Trail
             trailName = input.getText().toString();
             trail = new Trail(trailName,pathValues);
+            trail.setLocationName(mLocName.getText().toString());
             dbLink.addTrail(trail);
             }
         });

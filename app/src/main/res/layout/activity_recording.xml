@@ -63,4 +63,12 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true" />
 
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/location_name_tf"
+        android:layout_below="@+id/bn_done"
+        android:layout_alignEnd="@+id/toggleButton"
+        android:layout_marginTop="53dp" />
+
 </RelativeLayout>
