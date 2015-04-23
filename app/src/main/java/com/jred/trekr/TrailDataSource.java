@@ -181,13 +181,40 @@ public class TrailDataSource {
 
     /* POIList Functions */
 
-    public void addPOI(long trailID, LatLng POILocation)
+    public void addPOI(POI poi)
     {
         ContentValues valuesForPOITable = new ContentValues();
 
-        valuesForPOITable.put(DatabaseHelper.TRAIL_ID_FK, trailID);
-        valuesForPOITable.put(DatabaseHelper.COLUMN_POILATITUDE, POILocation.latitude);
-        valuesForPOITable.put(DatabaseHelper.COLUMN_POILONGITUDE, POILocation.longitude);
+        valuesForPOITable.put(DatabaseHelper.TRAIL_ID_FK, poi.getTrailID());
+        valuesForPOITable.put(DatabaseHelper.COLUMN_POILATITUDE, poi.getLocation().latitude);
+        valuesForPOITable.put(DatabaseHelper.COLUMN_POILONGITUDE, poi.getLocation().longitude);
+
+        database.insert(DatabaseHelper.TABLE_POILIST, null, valuesForPOITable);
+    }
+
+    public void addPOI(POI poi, String trailName)
+    {
+        ContentValues valuesForPOITable = new ContentValues();
+
+        String query = "Select * FROM " + DatabaseHelper.TABLE_TRAILS + " WHERE " +
+                DatabaseHelper.COLUMN_TRAILNAME + " = \"" + trailName + "\";";
+
+        Cursor cursor = database.rawQuery(query, null);
+
+        long id = 0;
+
+        if (cursor.moveToFirst())
+        {
+            id = Long.parseLong(cursor.getString(0));
+        }
+
+        LatLng location = poi.getLocation();
+
+        valuesForPOITable.put(DatabaseHelper.TRAIL_ID_FK, id);
+        valuesForPOITable.put(DatabaseHelper.COLUMN_POINAME, poi.getPOIName());
+        valuesForPOITable.put(DatabaseHelper.COLUMN_DESCRIPTION, poi.getDescription());
+        valuesForPOITable.put(DatabaseHelper.COLUMN_POILATITUDE, location.latitude);
+        valuesForPOITable.put(DatabaseHelper.COLUMN_POILONGITUDE, location.longitude);
 
         database.insert(DatabaseHelper.TABLE_POILIST, null, valuesForPOITable);
     }
@@ -200,8 +227,8 @@ public class TrailDataSource {
 
         for (POI aPOIList : POIList) {
             valuesForPOITable.put(DatabaseHelper.TRAIL_ID_FK, trailID);
-            valuesForPOITable.put(DatabaseHelper.COLUMN_POILATITUDE, aPOIList.getLocation().getLatitude());
-            valuesForPOITable.put(DatabaseHelper.COLUMN_POILONGITUDE, aPOIList.getLocation().getLongitude());
+            valuesForPOITable.put(DatabaseHelper.COLUMN_POILATITUDE, aPOIList.getLocation().latitude);
+            valuesForPOITable.put(DatabaseHelper.COLUMN_POILONGITUDE, aPOIList.getLocation().longitude);
 
             database.insert(DatabaseHelper.TABLE_POILIST, null, valuesForPOITable);
 
@@ -218,15 +245,43 @@ public class TrailDataSource {
         Cursor cursor = database.rawQuery(query, null);
 
         POI POIFound = new POI();
-        Location POILocation = new Location();
+        LatLng POILocation;
 
         if (cursor.moveToFirst())
         {
             POIFound.setPOIID(Long.parseLong(cursor.getString(0)));
             POIFound.setTrailID(Long.parseLong(cursor.getString(1)));
             POIFound.setPOIName(cursor.getString(2));
-            POILocation.setLatitude(Double.parseDouble(cursor.getString(3)));
-            POILocation.setLongitude(Double.parseDouble(cursor.getString(4)));
+            POILocation = new LatLng(Double.parseDouble(cursor.getString(3)),
+                    Double.parseDouble(cursor.getString(4)));
+            POIFound.setLocation(POILocation);
+        }
+        else
+        {
+            POIFound = null;
+        }
+
+        return POIFound;
+    }
+
+    public POI findPOI(long POIID)
+    {
+        String query = "Select * FROM " + DatabaseHelper.TABLE_POILIST + " WHERE "
+                + DatabaseHelper.POI_ID + " = \"" + POIID + "\";";
+
+        Cursor cursor = database.rawQuery(query, null);
+
+        POI POIFound = new POI();
+        LatLng POILocation;
+
+        if (cursor.moveToFirst())
+        {
+            POIFound.setTrailID(Long.parseLong(cursor.getString(0)));
+            POIFound.setPOIID(Long.parseLong(cursor.getString(1)));
+            POIFound.setPOIName(cursor.getString(2));
+            POIFound.setDescription(cursor.getString(3));
+            POILocation = new LatLng(Double.parseDouble(cursor.getString(4)),
+                    Double.parseDouble(cursor.getString(5)));
             POIFound.setLocation(POILocation);
         }
         else
@@ -244,21 +299,23 @@ public class TrailDataSource {
 
         Cursor cursor = database.rawQuery(query, null);
 
-        ArrayList<POI> POIList = new ArrayList<POI>();
-        Location POILocation = new Location();
+        ArrayList<POI> POIList = new ArrayList<>();
+        LatLng POILocation;
 
         if (cursor.moveToFirst())
         {
-            while (cursor.moveToNext())
+            while (!cursor.isAfterLast())
             {
                 POI newPOI = new POI();
                 newPOI.setPOIID(Long.parseLong(cursor.getString(0)));
                 newPOI.setTrailID(Long.parseLong(cursor.getString(1)));
                 newPOI.setPOIName(cursor.getString(2));
-                POILocation.setLatitude(Double.parseDouble(cursor.getString(3)));
-                POILocation.setLongitude(Double.parseDouble(cursor.getString(4)));
+                newPOI.setDescription(cursor.getString(3));
+                POILocation = new LatLng(Double.parseDouble(cursor.getString(4)),
+                        Double.parseDouble(cursor.getString(5)));
                 newPOI.setLocation(POILocation);
                 POIList.add(newPOI);
+                cursor.moveToNext();
             }
         }
         else
@@ -312,4 +369,31 @@ public class TrailDataSource {
         return trail;
     }
 
+    public ArrayList<String> getAllPOIs() {
+        ArrayList<String> values = new ArrayList<>();
+        String[] allColumns = {DatabaseHelper.COLUMN_ID, DatabaseHelper.POI_ID,
+                DatabaseHelper.COLUMN_POINAME, DatabaseHelper.COLUMN_DESCRIPTION,
+                DatabaseHelper.COLUMN_POILATITUDE, DatabaseHelper.COLUMN_POILONGITUDE};
+
+        Cursor cursor = database.query(DatabaseHelper.TABLE_POILIST,
+                allColumns, null, null, null, null, null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            POI poi = cursorToPOI(cursor);
+            values.add(poi.getPOIName());
+            cursor.moveToNext();
+        }
+        // make sure to close the cursor
+        cursor.close();
+        return values;
+    }
+
+    private POI cursorToPOI(Cursor cursor) {
+        POI poi = new POI();
+        poi.setTrailID(cursor.getLong(0));
+        poi.setPOIID(cursor.getLong(1));
+        poi.setPOIName(cursor.getString(2));
+        return poi;
+    }
 }

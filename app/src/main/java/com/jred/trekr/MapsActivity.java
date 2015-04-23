@@ -1,8 +1,11 @@
 package com.jred.trekr;
 
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 
 import android.view.Menu;
@@ -28,8 +31,10 @@ import android.support.v7.app.ActionBarDrawerToggle;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Random;
 
-public class MapsActivity extends ActionBarActivity {
+public class MapsActivity extends ActionBarActivity
+    implements POIDialog.NoticeDialogListener, POIDialog.OnFragmentInteractionListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private LatLng loc;
@@ -45,6 +50,9 @@ public class MapsActivity extends ActionBarActivity {
     private TrailDataSource dbLink;
 
     private ArrayList<Polyline> polylines;
+    private ArrayList<Marker> markers;
+
+    private POI poi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +77,8 @@ public class MapsActivity extends ActionBarActivity {
 
 
         polylines = new ArrayList<>();
+        markers = new ArrayList<>();
+        poi = new POI();
         //drawDemoTrail();
     }
 
@@ -88,7 +98,7 @@ public class MapsActivity extends ActionBarActivity {
     /** START: Navigation drawer functions **/
 
     private void addDrawerItems() {
-        String[] navArray = { "Emergency", "Record Trail", "Select Trail", "Clear Trails","Terrain", "Hybrid", "Satellite", "Settings"};
+        String[] navArray = { "Emergency", "Record Trail", "Select Trail", "Select POI", "Clear Trails", "Clear POIs","Terrain", "Hybrid", "Satellite", "Settings"};
         mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, navArray);
         mDrawerList.setAdapter(mAdapter);
 
@@ -111,22 +121,30 @@ public class MapsActivity extends ActionBarActivity {
                         mDrawerLayout.closeDrawers();
                         break;
                     case 3:
-                        clearPolylines();
+                        startSelectPOIActivity();
                         mDrawerLayout.closeDrawers();
                         break;
                     case 4:
-                        mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                        clearPolylines();
                         mDrawerLayout.closeDrawers();
                         break;
                     case 5:
-                        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                        clearMarkers();
                         mDrawerLayout.closeDrawers();
                         break;
                     case 6:
-                        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                        mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                         mDrawerLayout.closeDrawers();
                         break;
                     case 7:
+                        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                        mDrawerLayout.closeDrawers();
+                        break;
+                    case 8:
+                        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                        mDrawerLayout.closeDrawers();
+                        break;
+                    case 9:
                         Toast.makeText(MapsActivity.this, "Settings Requested", Toast.LENGTH_SHORT).show();
                         mDrawerLayout.closeDrawers();
                         break;
@@ -218,6 +236,12 @@ public class MapsActivity extends ActionBarActivity {
         startActivityForResult(intent, 1);
     }
 
+    // Used to start RecordingActivity from drawer OnClickListener
+    private void startSelectPOIActivity() {
+        Intent intent = new Intent(this, SelectPOI.class);
+        startActivityForResult(intent, 2);
+    }
+
     /** END: Navigation drawer functions **/
 
     /**
@@ -257,6 +281,15 @@ public class MapsActivity extends ActionBarActivity {
     private void setUpMap() {
         mMap.setMyLocationEnabled(true);
         mMap.setOnMyLocationChangeListener(myLocationChangeListener);
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng point) {
+                poi.setLocation(point);
+                showPOIDialog();
+            }
+        });
+
+
         Trail tempTrail;
         try {
             tempTrail = dbLink.findTrail(1);
@@ -273,20 +306,34 @@ public class MapsActivity extends ActionBarActivity {
     }
 
     private void drawTrail(Trail trail) {
+        Random rand = new Random();
+        int r = rand.nextInt(255);
+        int g = rand.nextInt(255);
+        int b = rand.nextInt(255);
+        int randomColor = Color.rgb(r,g,b);
         ArrayList<LatLng> points = trail.getPathValues();
         PolylineOptions polyTrail = new PolylineOptions();
         for (LatLng point : points) {
             polyTrail.add(point);
         }
-        polyTrail.color(android.graphics.Color.RED);
+        polyTrail.color(randomColor);
         Polyline polyFinal = mMap.addPolyline(polyTrail);
         polylines.add(polyFinal);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(points.get(0), 17f));
     }
 
     private void clearPolylines() {
         for (Polyline polyline : polylines) {
             polyline.remove();
         }
+        polylines.clear();
+    }
+
+    private void clearMarkers() {
+        for (Marker marker : markers) {
+            marker.remove();
+        }
+        markers.clear();
     }
 
     @Override
@@ -302,5 +349,48 @@ public class MapsActivity extends ActionBarActivity {
                 // Do something with the contact here (bigger example below)
             }
         }
+        else if (requestCode == 2) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                // The user picked a contact.
+                // The Intent's data Uri identifies which contact was selected.
+                POI poi = dbLink.findPOI(Long.parseLong(data.getDataString()));
+                MarkerOptions marker = new MarkerOptions()
+                        .position(new LatLng(poi.getLocation().latitude, poi.getLocation().longitude))
+                        .title(poi.getPOIName())
+                        .snippet(poi.getDescription());
+                markers.add(mMap.addMarker(marker));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 17f));
+                // Do something with the contact here (bigger example below)
+            }
+        }
+    }
+
+    public void showPOIDialog() {
+        // Create an instance of the dialog fragment and show it
+        DialogFragment dialog = new POIDialog();
+        dialog.show(getFragmentManager(), "POIDialog");
+    }
+
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog, String trail_name, String poi_name, String poi_description) {
+        poi.setPOIName(poi_name);
+        poi.setDescription(poi_description);
+        MarkerOptions marker = new MarkerOptions()
+                .position(new LatLng(poi.getLocation().latitude, poi.getLocation().longitude))
+                .title(poi.getPOIName())
+                .snippet(poi_description);
+        markers.add(mMap.addMarker(marker));
+        dbLink.addPOI(poi, trail_name);
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }

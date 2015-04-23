@@ -1,13 +1,18 @@
 package com.jred.trekr;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
+import android.os.PowerManager;
+import android.os.Vibrator;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -64,6 +69,8 @@ public class RecordingActivity extends ActionBarActivity implements
     protected TextView mDist;
     protected EditText mLocName;
 
+    protected Vibrator vibe;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +89,9 @@ public class RecordingActivity extends ActionBarActivity implements
         // Database objects
         dbLink = new TrailDataSource(this);
         dbLink.open();
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     }
 
 
@@ -195,6 +205,7 @@ public class RecordingActivity extends ActionBarActivity implements
         if (recording) {
             LatLng currLocation = new LatLng(mCurrentLocation.getLatitude(),mCurrentLocation.getLongitude());
             pathValues.add(currLocation);
+            vibe.vibrate(100);
             if (lastLocation == null) {
                 lastLocation = currLocation;
                 distance = 0;

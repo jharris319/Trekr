@@ -1,11 +1,14 @@
 package com.jred.trekr;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class POI {
 
     public long _POIID;
     public long _trailID;
     public String _POIName;
-    public Location _location;
+    public String _description;
+    public LatLng _location;
 
     public POI()
     {
@@ -16,7 +19,7 @@ public class POI {
         this._POIName = POIName;
     }
 
-    public POI(String POIName, Location location)
+    public POI(String POIName, LatLng location)
     {
         this._POIName = POIName;
         this._location = location;
@@ -52,12 +55,20 @@ public class POI {
         return this._POIName;
     }
 
-    public void setLocation(Location location)
+    public void setDescription(String description) {
+        this._description = description;
+    }
+
+    public String getDescription() {
+        return this._description;
+    }
+
+    public void setLocation(LatLng location)
     {
         this._location = location;
     }
 
-    public Location getLocation()
+    public LatLng getLocation()
     {
         return this._location;
     }

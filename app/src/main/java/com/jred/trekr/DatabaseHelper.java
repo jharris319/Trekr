@@ -20,6 +20,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
     public static final String COLUMN_LOCATIONNAME = "LocationName";
     public static final String COLUMN_LATITUDE = "Latitude";
     public static final String COLUMN_LONGITUDE = "Longitude";
+    public static final String COLUMN_DESCRIPTION = "POIDescription";
     public static final String COLUMN_POINAME = "POIName";
     public static final String COLUMN_POILATITUDE = "POILatitude";
     public static final String COLUMN_POILONGITUDE = "POILongitude";
@@ -43,6 +44,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
                 + TRAIL_ID_FK         + " INTEGER, "
                 + POI_ID              + " INTEGER PRIMARY KEY, "
                 + COLUMN_POINAME      + " STRING, "
+                + COLUMN_DESCRIPTION  + " STRING, "
                 + COLUMN_POILATITUDE  + " REAL, "
                 + COLUMN_POILONGITUDE + " REAL, "
                 + " FOREIGN KEY ("+TRAIL_ID_FK+") REFERENCES "+TABLE_TRAILS+" ("+COLUMN_ID+"));";
