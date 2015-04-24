@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -68,6 +69,7 @@ public class RecordingActivity extends ActionBarActivity implements
     protected Chronometer mChrono;
     protected TextView mDist;
     protected EditText mLocName;
+    protected TextView tvSpeed;
 
     protected Vibrator vibe;
 
@@ -80,7 +82,7 @@ public class RecordingActivity extends ActionBarActivity implements
         mObjCount = (TextView)findViewById(R.id.obj_count);
         mChrono = (Chronometer)findViewById(R.id.chronometer);
         mDist = (TextView)findViewById(R.id.tv_distance);
-        mLocName = (EditText)findViewById(R.id.location_name_tf);
+        tvSpeed = (TextView)findViewById(R.id.tv_speed);
 
         // Kick off the process of building a GoogleApiClient and requesting the LocationServices
         // API.
@@ -225,8 +227,11 @@ public class RecordingActivity extends ActionBarActivity implements
      * Updates the latitude, the longitude, and the last location time in the UI.
      */
     private void updateUI() {
-        mObjCount.setText("Objects: " + String.valueOf(pathValues.size()));
-        mDist.setText("Distance: " + String.format("%.2f", (distance * 3.28084)));
+        mObjCount.setText(String.valueOf(pathValues.size()));
+        mDist.setText(String.format("%.0f", (distance * 3.28084)) + " feet");
+        double distInFeet = (distance * 3.28084);
+        double secondsElapsed = ((SystemClock.elapsedRealtime() / 1000) - (mChrono.getBase() / 1000));
+        tvSpeed.setText(String.format("%.2f", distInFeet/secondsElapsed) + " ft/s");
     }
 
     @Override
@@ -257,6 +262,7 @@ public class RecordingActivity extends ActionBarActivity implements
         if (on) {
             // Start Recording
             recording = true;
+            mChrono.setBase(SystemClock.elapsedRealtime());
             mChrono.start();
         } else {
             // Stop Recording
@@ -280,7 +286,6 @@ public class RecordingActivity extends ActionBarActivity implements
             // Save Trail
             trailName = input.getText().toString();
             trail = new Trail(trailName,pathValues);
-            trail.setLocationName(mLocName.getText().toString());
             dbLink.addTrail(trail);
             }
         });

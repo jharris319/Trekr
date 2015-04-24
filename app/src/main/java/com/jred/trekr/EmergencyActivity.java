@@ -9,6 +9,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.provider.ContactsContract;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.ActionBarActivity;
@@ -16,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,7 +40,7 @@ public class EmergencyActivity extends ActionBarActivity implements
         ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
 
     // The desired interval for location updates. Inexact. Updates may be more or less frequent.
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
     // The fastest rate for active location updates.
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2;
 
@@ -55,9 +57,10 @@ public class EmergencyActivity extends ActionBarActivity implements
     protected String mLastUpdateTime;
 
     // Placeholder for UI elements
-    protected TextView mLastUpdateTimeTextView;
     protected TextView mLatitudeTextView;
     protected TextView mLongitudeTextView;
+    protected TextView mUpdateTime;
+    protected Chronometer chrono;
 
     //For the intent and storing the phone number
     private static final String PREFS = "prefs";
@@ -69,6 +72,7 @@ public class EmergencyActivity extends ActionBarActivity implements
     protected String contactName = "";
 
     protected TextToSpeech ttsObject;
+    protected Date date;
 
     //RT
     //Displays the Search button on the emergency activity
@@ -197,7 +201,19 @@ public class EmergencyActivity extends ActionBarActivity implements
         // Locate UI widgets here
         mLatitudeTextView = (TextView) findViewById(R.id.latitude_text);
         mLongitudeTextView = (TextView) findViewById(R.id.longitude_text);
-        mLastUpdateTimeTextView = (TextView) findViewById(R.id.last_update_time_text);
+        chrono = (Chronometer) findViewById(R.id.chrono);
+        chrono.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
+            @Override
+            public void onChronometerTick(Chronometer cArg) {
+                long time = SystemClock.elapsedRealtime() - cArg.getBase();
+                int h = (int) (time / 3600000);
+                int m = (int) (time - h * 3600000) / 60000;
+                int s = (int) (time - h * 3600000 - m * 60000) / 1000;
+                String ss = s < 10 ? "0" + s : s + "";
+                cArg.setText("Updated " + ss + " seconds ago");
+            }
+        });
+        chrono.setFormat("Updated 00 seconds ago");
 
 
         // Kick off the process of building a GoogleApiClient and requesting the LocationServices
@@ -208,6 +224,7 @@ public class EmergencyActivity extends ActionBarActivity implements
         ttsObject = new TextToSpeech(getApplicationContext(), null);
         ttsObject.setSpeechRate(0.75f);
 
+        date = new Date();
 
         // Access the device's key-value storage
         mSharedPreferences = getSharedPreferences(PREFS, MODE_PRIVATE);
@@ -307,9 +324,10 @@ public class EmergencyActivity extends ActionBarActivity implements
      * Updates the latitude, the longitude, and the last location time in the UI.
      */
     private void updateUI() {
-        mLatitudeTextView.setText("Latitude: " + String.valueOf(mCurrentLocation.getLatitude()));
-        mLongitudeTextView.setText("Longitude: " + String.valueOf(mCurrentLocation.getLongitude()));
-        mLastUpdateTimeTextView.setText("Last Update: " + mLastUpdateTime);
+        mLatitudeTextView.setText(String.valueOf(mCurrentLocation.getLatitude()));
+        mLongitudeTextView.setText(String.valueOf(mCurrentLocation.getLongitude()));
+        chrono.setBase(SystemClock.elapsedRealtime());
+        chrono.start();
     }
 
     public void sendSMSHandler(View view) {
@@ -344,8 +362,7 @@ public class EmergencyActivity extends ActionBarActivity implements
 
     public void readTextHandler(View view) {
         String readString = mLatitudeTextView.getText().toString()
-                + mLongitudeTextView.getText().toString()
-                + mLastUpdateTimeTextView.getText().toString();
+                + mLongitudeTextView.getText().toString();
         readText(readString);
     }
 
